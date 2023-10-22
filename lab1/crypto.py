@@ -10,23 +10,40 @@ SUNet: <SUNet ID>
 Replace this with a description of the program.
 """
 import utils
+import random
+
 
 # Caesar Cipher
 
-def encrypt_caesar(plaintext):
+def encrypt_caesar(plaintext, shift=3):
     """Encrypt plaintext using a Caesar cipher.
 
     Add more implementation details here.
+    :param plaintext:
+    :param shift:
     """
-    raise NotImplementedError  # Your implementation here
+    encrypted = ""
+    for char in plaintext:
+        if char.isalpha():
+            shifted = ord(char) + shift
+            if char.islower():
+                if shifted > ord('z'):
+                    shifted -= 26
+            elif char.isupper():
+                if shifted > ord('Z'):
+                    shifted -= 26
+            encrypted += chr(shifted)
+        else:
+            encrypted += char
+    return encrypted
 
 
-def decrypt_caesar(ciphertext):
+def decrypt_caesar(ciphertext, shift=3):
     """Decrypt a ciphertext using a Caesar cipher.
 
     Add more implementation details here.
     """
-    raise NotImplementedError  # Your implementation here
+    return encrypt_caesar(ciphertext, -shift)
 
 
 # Vigenere Cipher
@@ -36,7 +53,15 @@ def encrypt_vigenere(plaintext, keyword):
 
     Add more implementation details here.
     """
-    raise NotImplementedError  # Your implementation here
+    encrypted = ""
+    key_length = len(keyword)
+    for i, char in enumerate(plaintext):
+        if char.isalpha():
+            shift = ord(keyword[i % key_length].lower()) - ord('a')
+            encrypted += encrypt_caesar(char, shift)
+        else:
+            encrypted += char
+    return encrypted
 
 
 def decrypt_vigenere(ciphertext, keyword):
@@ -44,7 +69,15 @@ def decrypt_vigenere(ciphertext, keyword):
 
     Add more implementation details here.
     """
-    raise NotImplementedError  # Your implementation here
+    decrypted = ""
+    key_length = len(keyword)
+    for i, char in enumerate(ciphertext):
+        if char.isalpha():
+            shift = ord(keyword[i % key_length].lower()) - ord('a')
+            decrypted += decrypt_caesar(char, shift)
+        else:
+            decrypted += char
+    return decrypted
 
 
 # Merkle-Hellman Knapsack Cryptosystem
@@ -69,7 +102,21 @@ def generate_private_key(n=8):
 
     @return 3-tuple `(w, q, r)`, with `w` a n-tuple, and q and r ints.
     """
-    raise NotImplementedError  # Your implementation here
+    # 1. Generate a superincreasing sequence w of length n
+    w = [random.randint(1, 5)]
+    for _ in range(1, n):
+        w.append(w[-1] + random.randint(1, 10))
+
+    # 2. Choose an integer q greater than the sum of all elements in w
+    q = w[-1] + random.randint(1, 10)
+
+    # 3. Find an integer r such that it is coprime to q
+    r = random.randint(2, q - 1)
+    while not utils.coprime(r, q):
+        r = random.randint(2, q - 1)
+
+    return tuple(w), q, r
+
 
 def create_public_key(private_key):
     """Create a public key corresponding to the given private key.
@@ -85,7 +132,8 @@ def create_public_key(private_key):
 
     @return n-tuple public key
     """
-    raise NotImplementedError  # Your implementation here
+    w, q, r = private_key
+    return tuple([(r * w_i) % q for w_i in w])
 
 
 def encrypt_mh(message, public_key):
@@ -106,9 +154,14 @@ def encrypt_mh(message, public_key):
 
     @return list of ints representing encrypted bytes
     """
-    raise NotImplementedError  # Your implementation here
+    encrypted = []
+    for byte in message:
+        bits = utils.byte_to_bits(byte)
+        encrypted.append(sum([bit * b for bit, b in zip(bits, public_key)]))
+    return encrypted
 
-def decrypt_mh(message, private_key):
+
+def decrypt_mh(ciphertexts, private_key):
     """Decrypt an incoming message using a private key
 
     1. Extract w, q, and r from the private key
@@ -119,12 +172,26 @@ def decrypt_mh(message, private_key):
     4. Solve the superincreasing subset sum using c' and w to recover the original byte
     5. Reconsitite the encrypted bytes to get the original message back
 
-    @param message Encrypted message chunks
-    @type message list of ints
+    @param ciphertexts Encrypted message chunks
+    @type ciphertexts list of ints
     @param private_key The private key of the recipient
     @type private_key 3-tuple of w, q, and r
 
     @return bytearray or str of decrypted characters
     """
-    raise NotImplementedError  # Your implementation here
+    w, q, r = private_key
+    s = utils.modinv(r, q)
+    decrypted = bytearray()
 
+    for c in ciphertexts:
+        c_prime = (c * s) % q
+        bits = []
+        for w_i in reversed(w):
+            if w_i <= c_prime:
+                bits.append(1)
+                c_prime -= w_i
+            else:
+                bits.append(0)
+        decrypted.append(utils.bits_to_byte(reversed(bits)))
+
+    return decrypted
