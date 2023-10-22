@@ -173,8 +173,8 @@ def run_suite():
     # This isn't the cleanest way to implement functional control flow,
     # but I thought it was too cool to not sneak in here!
     commands = {
-        'C': run_caesar,         # Caesar Cipher
-        'V': run_vigenere,       # Vigenere Cipher
+        'C': run_caesar,  # Caesar Cipher
+        'V': run_vigenere,  # Vigenere Cipher
         'M': run_merkle_hellman  # Merkle-Hellman Knapsack Cryptosystem
     }
     commands[tool]()
