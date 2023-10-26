@@ -3,6 +3,7 @@
 Mathematical utilities for CS41's Assignment 1: Cryptography.
 """
 import fractions as _fractions
+import math as _math
 
 
 class Error(Exception):
@@ -43,7 +44,7 @@ def modinv(a, b):
 
 def coprime(a, b):
     """Returns True iff `gcd(a, b) == 1`, i.e. iff `a` and `b` are coprime"""
-    return _fractions.gcd(a, b) == 1
+    return _math.gcd(a, b) == 1
 
 
 def byte_to_bits(byte):
