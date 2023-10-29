@@ -12,16 +12,12 @@ import random
 from crypto import (encrypt_caesar, decrypt_caesar,
                     encrypt_vigenere, decrypt_vigenere,
                     generate_private_key, create_public_key,
-                    encrypt_mh, decrypt_mh)
+                    encrypt_mh, decrypt_mh, encrypt_scytale, decrypt_scytale, encrypt_railfence, decrypt_railfence)
 
 
 #############################
 # GENERAL CONSOLE UTILITIES #
 #############################
-
-def get_tool():
-    print("* Tool *")
-    return _get_selection("(C)aesar, (V)igenere or (M)erkle-Hellman? ", "CVM")
 
 
 def get_action():
@@ -161,21 +157,53 @@ def run_merkle_hellman():
     set_output(output)
 
 
+def get_tool():
+    print("* Tool *")
+    return _get_selection("(C)aesar, (V)igenere, (M)erkle-Hellman, (S)cytale, or (R)ailfence? ", "CVMSR")
+
+
+def run_scytale():
+    action = get_action()
+    encrypting = action == 'E'
+    data = get_input(binary=False)
+
+    print("* Transform *")
+    circumference = int(input("Circumference? "))
+
+    print("{}crypting {} using Scytale cipher...".format('En' if encrypting else 'De', data))
+
+    output = (encrypt_scytale if encrypting else decrypt_scytale)(data, circumference)
+
+    set_output(output)
+
+
+def run_railfence():
+    action = get_action()
+    encrypting = action == 'E'
+    data = get_input(binary=False)
+
+    print("* Transform *")
+    num_rails = int(input("Number of Rails? "))
+
+    print("{}crypting {} using Railfence cipher...".format('En' if encrypting else 'De', data))
+
+    output = (encrypt_railfence if encrypting else decrypt_railfence)(data, num_rails)
+
+    set_output(output)
+
+
 def run_suite():
     """
     Runs a single iteration of the cryptography suite.
-
-    Asks the user for input text from a string or file, whether to encrypt
-    or decrypt, what tool to use, and where to show the output.
     """
     print('-' * 34)
     tool = get_tool()
-    # This isn't the cleanest way to implement functional control flow,
-    # but I thought it was too cool to not sneak in here!
     commands = {
         'C': run_caesar,  # Caesar Cipher
         'V': run_vigenere,  # Vigenere Cipher
-        'M': run_merkle_hellman  # Merkle-Hellman Knapsack Cryptosystem
+        'M': run_merkle_hellman,  # Merkle-Hellman Knapsack Cryptosystem
+        'S': run_scytale,  # Scytale Cipher
+        'R': run_railfence  # Railfence Cipher
     }
     commands[tool]()
 

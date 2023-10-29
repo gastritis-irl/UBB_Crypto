@@ -195,3 +195,38 @@ def decrypt_mh(ciphertexts, private_key):
         decrypted.append(utils.bits_to_byte(reversed(bits)))
 
     return decrypted
+
+
+# Scytale Cipher
+
+def encrypt_scytale(plaintext, circumference):
+    ciphertext = [''] * circumference
+    for i in range(circumference):
+        pointer = i
+        while pointer < len(plaintext):
+            ciphertext[i] += plaintext[pointer]
+            pointer += circumference
+    return ''.join(ciphertext)
+
+
+def decrypt_scytale(ciphertext, circumference):
+    return encrypt_scytale(ciphertext, len(ciphertext) // circumference)
+
+
+# Railfence Cipher
+
+def encrypt_railfence(plaintext, num_rails):
+    if num_rails == 1:
+        return plaintext
+    pattern = list(range(num_rails)) + list(range(num_rails - 2, 0, -1))
+    return ''.join(plaintext[i::len(pattern)] for i in range(len(pattern)))
+
+
+def decrypt_railfence(ciphertext, num_rails):
+    if num_rails == 1:
+        return ciphertext
+    pattern = list(range(num_rails)) + list(range(num_rails - 2, 0, -1))
+    rails = [[] for _ in range(num_rails)]
+    for i, char in zip(pattern * (len(ciphertext) // len(pattern)), ciphertext):
+        rails[i].append(char)
+    return ''.join(r.pop(0) if r else ' ' for i in pattern * (len(ciphertext) // len(pattern)))
