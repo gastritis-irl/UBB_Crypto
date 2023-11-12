@@ -223,10 +223,25 @@ def encrypt_railfence(plaintext, num_rails):
 
 
 def decrypt_railfence(ciphertext, num_rails):
-    if num_rails == 1:
+    if num_rails == 1 or num_rails >= len(ciphertext):
         return ciphertext
+
+    # Create a grid with the same zigzag pattern
     pattern = list(range(num_rails)) + list(range(num_rails - 2, 0, -1))
-    rails = [[] for _ in range(num_rails)]
-    for i, char in zip(pattern * (len(ciphertext) // len(pattern)), ciphertext):
-        rails[i].append(char)
-    return ''.join(r.pop(0) if r else ' ' for i in pattern * (len(ciphertext) // len(pattern)))
+    grid = ['' for _ in range(num_rails)]
+
+    # Calculate the length of each row in the grid
+    lengths = [len(ciphertext[i::len(pattern)]) for i in range(len(pattern))]
+
+    # Distribute the ciphertext characters to the grid
+    index = 0
+    for i, length in enumerate(lengths):
+        grid[i] = list(ciphertext[index:index + length])
+        index += length
+
+    # Reconstruct the plaintext by following the zigzag pattern
+    plaintext = []
+    for i in pattern * (len(ciphertext) // len(pattern)):
+        plaintext.append(grid[i].pop(0))
+
+    return ''.join(plaintext)
