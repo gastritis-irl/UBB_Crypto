@@ -14,7 +14,7 @@ def client_main():
     if algorithm_name == 'Solitaire':
         key_generator = solitaire_key_generator
         some_fixed_seed = 123
-        key_args = (key_stream_length, 52, some_fixed_seed)
+        key_args = (key_stream_length, 1024, some_fixed_seed)
     elif algorithm_name == 'Blum-Blum-Shub':
         key_generator = blum_blum_shub_key_generator
         key_args = (key_stream_length, 101, 103)

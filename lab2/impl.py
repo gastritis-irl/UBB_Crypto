@@ -14,7 +14,7 @@ def blum_blum_shub_key_generator(length, prime1=101, prime2=103, seed=123):
     return bytes(byte_array)
 
 
-def solitaire_key_generator(length, deck_size=52, seed=None):
+def solitaire_key_generator(length, deck_size=1024, seed=None):
     deck = list(range(1, deck_size + 1)) + ["A", "B"]
 
     if seed is not None:
@@ -31,7 +31,11 @@ def solitaire_key_generator(length, deck_size=52, seed=None):
     for _ in range(length):
         move_jokers()
         top_card = deck[0]
-        top_index = deck.index(top_card) if top_card != "A" and top_card != "B" else 53
+        top_index = deck.index(top_card) if top_card != "A" and top_card != "B" else 1025
+        while top_index == 1025:
+            move_jokers()
+            top_card = deck[0]
+            top_index = deck.index(top_card) if top_card != "A" and top_card != "B" else 1025
         key_byte = deck[top_index] % 256
         key_stream.append(key_byte)
 
